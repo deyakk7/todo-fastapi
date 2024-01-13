@@ -4,13 +4,13 @@ from datetime import timedelta, datetime
 from fastapi import status, HTTPException
 from jose import jwt, JWTError, ExpiredSignatureError
 
-from core import settigns
-from db.db import db_dependency
-from models import model_user
+from src import settigns
+from src.dependencies import db_dependency
+from src.users import models
 
 
 def get_user_by_email(db: db_dependency, email: str):
-    return db.query(model_user.User).filter(model_user.User.email == email).first()
+    return db.query(models.User).filter(models.User.email == email).first()
 
 
 def password_validation(password: str):

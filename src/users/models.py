@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from db.engine import Base
-from .model_todo import Todo
+from src.database import Base
+from src.todos.models import Todo
 
 
 class User(Base):

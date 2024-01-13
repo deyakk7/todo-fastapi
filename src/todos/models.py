@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from db.engine import Base
+from src.database import Base
 
 
 class Todo(Base):

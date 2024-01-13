@@ -3,13 +3,13 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, status
 
-from core.security import get_hash_password, verify_password
-from core.settigns import ACCESS_TOKEN_EXPIRES_DAY
-from core.utils import get_user_by_email, get_user_by_token, create_access_token
-from core.utils import password_validation
-from db.db import db_dependency, token_dependency
-from models.model_user import User
-from schemas import schema_user
+from src.dependencies import db_dependency, token_dependency
+from src.security import get_hash_password, verify_password
+from src.settigns import ACCESS_TOKEN_EXPIRES_DAY
+from src.users.models import User
+from src.users.schemas import UserOut, UserCreateOut, UserCreate, UserPasswordChanging, UserPassword
+from src.users.utils import get_user_by_email, get_user_by_token, create_access_token
+from src.users.utils import password_validation
 
 router = APIRouter(
     tags=['users'],
@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=List[schema_user.UserOut])
+@router.get('/', response_model=List[UserOut])
 async def get_all_users(db: db_dependency, token: token_dependency):
     if not get_user_by_token(token=token, db=db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
@@ -26,8 +26,8 @@ async def get_all_users(db: db_dependency, token: token_dependency):
     return users
 
 
-@router.post('/', response_model=schema_user.UserCreateOut)
-async def create_user(user: schema_user.UserCreate, db: db_dependency):
+@router.post('/', response_model=UserCreateOut)
+async def create_user(user: UserCreate, db: db_dependency):
     if get_user_by_email(email=user.email, db=db):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use!")
 
@@ -49,14 +49,14 @@ async def create_user(user: schema_user.UserCreate, db: db_dependency):
     return db_user
 
 
-@router.get('/me/', response_model=schema_user.UserOut)
+@router.get('/me/', response_model=UserOut)
 async def get_current_user(db: db_dependency, token: token_dependency):
     user = get_user_by_token(token=token, db=db)
     return user
 
 
-@router.post('/me/change-password/', response_model=schema_user.UserOut)
-async def change_password(db: db_dependency, token: token_dependency, form_data: schema_user.UserPasswordChanging):
+@router.post('/me/change-password/', response_model=UserOut)
+async def change_password(db: db_dependency, token: token_dependency, form_data: UserPasswordChanging):
     user = get_user_by_token(token=token, db=db)
 
     password = form_data.password
@@ -77,7 +77,7 @@ async def change_password(db: db_dependency, token: token_dependency, form_data:
 
 
 @router.delete('/me/')
-async def delete_user(db: db_dependency, token: token_dependency, form_data: schema_user.UserPassword):
+async def delete_user(db: db_dependency, token: token_dependency, form_data: UserPassword):
     user = get_user_by_token(db=db, token=token)
     db_user = db.delete(user)
     print(db_user)
@@ -89,19 +89,3 @@ async def delete_user(db: db_dependency, token: token_dependency, form_data: sch
     return {
         'message': "deleted successfully"
     }
-
-# TODO my todos
-# TODO changing todo
-# TODO is completed (TODO)
-# TODO Delete user
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO
-# TODO

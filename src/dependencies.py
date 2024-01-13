@@ -3,17 +3,7 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-
-from .engine import SessionLocal
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+from src.database import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='api/v1/auth/login/access-token/')
 

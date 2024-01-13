@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from core import utils, security, settigns
-from db.db import db_dependency
+from src import settigns, security
+from src.users import utils
+from src.dependencies import db_dependency
 
 router = APIRouter(
     prefix='/auth',

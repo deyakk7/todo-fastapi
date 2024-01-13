@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from core import utils
-from schemas import schema_todo
+from src.users import utils
+from src.todos.schemas import Todo
 
 password_regex = r"((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,64})"
 
@@ -22,7 +22,7 @@ class UserCreate(UserBase):
 
 class UserOut(UserBase):
     id: int
-    todos: list[schema_todo.Todo]
+    todos: list[Todo]
 
 
 class UserCreateOut(UserBase):
