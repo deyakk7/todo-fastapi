@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from src.todos.schemas import TodoOut
-from src.users.utils import get_user_by_token
-from src.dependencies import db_dependency, token_dependency
-from src.todos import models, schemas
+from src.auth.dependencies import db_dependency
+from src.todos.models import Todo
+from src.todos.schemas import TodoOut, TodoIn
+from src.users.dependencies import user_dependency
 
 router = APIRouter(
     prefix='/todos',
@@ -12,9 +12,8 @@ router = APIRouter(
 
 
 @router.post('/', response_model=TodoOut)
-async def create_todo(db: db_dependency, token: token_dependency, todo: schemas.Todo):
-    user = get_user_by_token(token=token, db=db)
-    db_todo = schemas.Todo(**todo.model_dump(), owner_id=user.id)
+async def create_todo(user: user_dependency, todo: TodoIn, db: db_dependency):
+    db_todo = Todo(**todo.model_dump(), owner_id=user.id)
 
     db.add(db_todo)
     db.commit()
@@ -24,6 +23,5 @@ async def create_todo(db: db_dependency, token: token_dependency, todo: schemas.
 
 
 @router.get('/my/', response_model=list[TodoOut])
-async def get_all_todos_of_current_user(db: db_dependency, token: token_dependency):
-    user = get_user_by_token(token=token, db=db)
+async def get_all_todos_of_current_user(user: user_dependency):
     return user.todos

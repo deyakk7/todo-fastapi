@@ -12,4 +12,4 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
 
-    todos = relationship(Todo, back_populates='owner')
+    todos = relationship(Todo, back_populates='owner', cascade="all, delete-orphan")

@@ -1,12 +1,12 @@
 from pydantic import BaseModel, Field
 
 
-class Todo(BaseModel):
+class TodoIn(BaseModel):
     title: str = Field(min_length=1)
     description: str
 
 
-class TodoOut(Todo):
+class TodoOut(TodoIn):
     id: int
     owner_id: int
 

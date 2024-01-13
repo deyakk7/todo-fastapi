@@ -3,13 +3,13 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, status
 
-from src.dependencies import db_dependency, token_dependency
-from src.security import get_hash_password, verify_password
+from src.auth.dependencies import db_dependency, token_dependency
+from src.auth.utils import verify_token, create_access_token, get_hash_password, verify_password
 from src.settigns import ACCESS_TOKEN_EXPIRES_DAY
+from src.users.dependencies import user_dependency
 from src.users.models import User
 from src.users.schemas import UserOut, UserCreateOut, UserCreate, UserPasswordChanging, UserPassword
-from src.users.utils import get_user_by_email, get_user_by_token, create_access_token
-from src.users.utils import password_validation
+from src.users.utils import get_user_by_email, password_validation
 
 router = APIRouter(
     tags=['users'],
@@ -19,7 +19,7 @@ router = APIRouter(
 
 @router.get('/', response_model=List[UserOut])
 async def get_all_users(db: db_dependency, token: token_dependency):
-    if not get_user_by_token(token=token, db=db):
+    if not verify_token(token=token, db=db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
     users = db.query(User).all()
@@ -50,15 +50,12 @@ async def create_user(user: UserCreate, db: db_dependency):
 
 
 @router.get('/me/', response_model=UserOut)
-async def get_current_user(db: db_dependency, token: token_dependency):
-    user = get_user_by_token(token=token, db=db)
+async def get_current_user(user: user_dependency):
     return user
 
 
 @router.post('/me/change-password/', response_model=UserOut)
-async def change_password(db: db_dependency, token: token_dependency, form_data: UserPasswordChanging):
-    user = get_user_by_token(token=token, db=db)
-
+async def change_password(user: user_dependency, form_data: UserPasswordChanging, db: db_dependency):
     password = form_data.password
     new_password = form_data.new_password
 
@@ -77,10 +74,8 @@ async def change_password(db: db_dependency, token: token_dependency, form_data:
 
 
 @router.delete('/me/')
-async def delete_user(db: db_dependency, token: token_dependency, form_data: UserPassword):
-    user = get_user_by_token(db=db, token=token)
+async def delete_user(user: user_dependency, form_data: UserPassword, db: db_dependency):
     db_user = db.delete(user)
-    print(db_user)
     if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid password")
 
