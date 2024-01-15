@@ -42,3 +42,4 @@ def create_access_token(data: dict, expires_delta: timedelta):
     data.update({"exp": expire})
     encoded_jwt = jwt.encode(data, settigns.SECRET_KEY, algorithm=settigns.ALGORYTHM)
     return encoded_jwt
+#
