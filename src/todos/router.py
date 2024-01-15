@@ -23,11 +23,29 @@ async def create_todo(user: user_dependency, todo: TodoIn, db: db_dependency):
     return db_todo
 
 
+@router.get('/my/', response_model=list[TodoOut])
+async def get_all_todos_of_current_user(user: user_dependency):
+    return user.todos
+
+
 @router.get('/{todo_id}/', response_model=TodoOut)
 async def get_todo(todo: todo_dependency):
     return todo
 
 
-@router.get('/my/', response_model=list[TodoOut])
-async def get_all_todos_of_current_user(user: user_dependency):
-    return user.todos
+@router.put('/{todo_id}/', response_model=TodoOut)
+async def change_todo(new_todo: TodoIn, todo: todo_dependency, db: db_dependency):
+    todo.title = new_todo.title
+    todo.description = new_todo.description
+
+    db.commit()
+    db.refresh(todo)
+
+    return todo
+
+
+@router.delete('/{todo_id}/')
+async def delete_todo(todo: todo_dependency, db: db_dependency):
+    db.delete(todo)
+    db.commit()
+    return {'message': "todo was deleted successfully"}

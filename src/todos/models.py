@@ -11,6 +11,6 @@ class Todo(Base):
     title = Column(String)
     description = Column(String)
 
-    owner_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"))
+    owner_id = Column(Integer, ForeignKey('users.id'))
 
-    owner = relationship('User', back_populates='todos', cascade='all,delete')
+    owner = relationship('User', back_populates='todos')

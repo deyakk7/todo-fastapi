@@ -82,10 +82,10 @@ async def change_password(user: user_dependency, form_data: UserPasswordChanging
 
 @router.delete('/me/')
 async def delete_user(user: user_dependency, form_data: UserPassword, db: db_dependency):
-    db.delete(user)
     if not verify_password(form_data.password, user.hashed_password):
         raise password_invalid_exc
 
+    db.delete(user)
     db.commit()
 
     return {
