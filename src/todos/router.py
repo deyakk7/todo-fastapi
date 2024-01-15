@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.auth.dependencies import db_dependency
+from src.todos.dependencies import todo_dependency
 from src.todos.models import Todo
 from src.todos.schemas import TodoOut, TodoIn
 from src.users.dependencies import user_dependency
@@ -20,6 +21,11 @@ async def create_todo(user: user_dependency, todo: TodoIn, db: db_dependency):
     db.refresh(db_todo)
 
     return db_todo
+
+
+@router.get('/{todo_id}/', response_model=TodoOut)
+async def get_todo(todo: todo_dependency):
+    return todo
 
 
 @router.get('/my/', response_model=list[TodoOut])

@@ -1,12 +1,14 @@
 from datetime import timedelta
-from typing import List
+from typing import List, Union
 
 from fastapi import APIRouter, HTTPException, status
 
 from src.auth.dependencies import db_dependency, token_dependency
+from src.auth.exc import login_exc
 from src.auth.utils import verify_token, create_access_token, get_hash_password, verify_password
 from src.settigns import ACCESS_TOKEN_EXPIRES_DAY
 from src.users.dependencies import user_dependency
+from src.users.exc import email_in_use_exc, password_invalid_exc, password_to_week_exc
 from src.users.models import User
 from src.users.schemas import UserOut, UserCreateOut, UserCreate, UserPasswordChanging, UserPassword
 from src.users.utils import get_user_by_email, password_validation
@@ -18,18 +20,23 @@ router = APIRouter(
 
 
 @router.get('/', response_model=List[UserOut])
-async def get_all_users(db: db_dependency, token: token_dependency):
+async def get_all_users(
+        db: db_dependency,
+        token: token_dependency,
+        skip: Union[int, None] = 0,
+        limit: Union[int, None] = 100
+):
     if not verify_token(token=token, db=db):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise login_exc
 
-    users = db.query(User).all()
+    users = db.query(User).limit(limit=limit).offset(offset=skip).all()
     return users
 
 
 @router.post('/', response_model=UserCreateOut)
 async def create_user(user: UserCreate, db: db_dependency):
     if get_user_by_email(email=user.email, db=db):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use!")
+        raise email_in_use_exc
 
     hashed_password = get_hash_password(user.password)
     db_user = User(email=user.email, hashed_password=hashed_password)
@@ -60,10 +67,10 @@ async def change_password(user: user_dependency, form_data: UserPasswordChanging
     new_password = form_data.new_password
 
     if not verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong current password")
+        raise password_invalid_exc
 
     if not password_validation(new_password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password to week!")
+        raise password_to_week_exc
 
     user.hashed_password = get_hash_password(new_password)
     db.add(user)
@@ -75,9 +82,9 @@ async def change_password(user: user_dependency, form_data: UserPasswordChanging
 
 @router.delete('/me/')
 async def delete_user(user: user_dependency, form_data: UserPassword, db: db_dependency):
-    db_user = db.delete(user)
+    db.delete(user)
     if not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid password")
+        raise password_invalid_exc
 
     db.commit()
 
