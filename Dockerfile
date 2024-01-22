@@ -6,11 +6,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /todo
 
-COPY requirements.txt /todo/requirements.txt
-
-COPY src ./src
-
-COPY .env .
+COPY . .
 
 RUN pip install -r requirements.txt
 
@@ -18,4 +14,4 @@ RUN rm -rf requirements.txt
 
 EXPOSE 80
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

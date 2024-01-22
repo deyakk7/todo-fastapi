@@ -1,8 +1,8 @@
 from fastapi import FastAPI, APIRouter
 
+from src.auth import router as auth_router
 from src.database import Base, engine
 from src.todos import router as todo_router
-from src.auth import router as auth_router
 from src.users import router as user_router
 
 Base.metadata.create_all(bind=engine)
