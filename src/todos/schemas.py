@@ -6,7 +6,11 @@ class TodoIn(BaseModel):
     description: str
 
 
-class TodoOut(TodoIn):
+class TodoChange(TodoIn):
+    completed: bool
+
+
+class TodoOut(TodoChange):
     id: int
     owner_id: int
 
