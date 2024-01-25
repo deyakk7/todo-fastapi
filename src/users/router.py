@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import List, Union
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 
 from src.auth.dependencies import db_dependency, token_dependency
 from src.auth.exc import login_exc

@@ -35,10 +35,6 @@ async def change_todo(new_todo: TodoChange, todo: todo_dependency, db: db_depend
     for key, value in new_todo.model_dump().items():
         setattr(todo, key, value)
 
-    # todo.title = new_todo.title
-    # todo.description = new_todo.description
-    # todo.completed = new_todo.completed
-
     db.commit()
     db.refresh(todo)
 

@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from src.database import Base
-from src.todos.models import Todo
 
 
 class User(Base):
@@ -12,4 +11,5 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
 
-    todos = relationship(Todo, back_populates='owner', cascade="all, delete-orphan")
+    profile = relationship("Profile", back_populates='user', cascade="all, delete-orphan")
+    todos = relationship("Todo", back_populates='owner', cascade="all, delete-orphan")
