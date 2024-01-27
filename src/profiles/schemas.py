@@ -2,8 +2,8 @@ from pydantic import BaseModel, Field
 
 
 class ProfileBase(BaseModel):
-    first_name: str | None = Field(min_length=5)
-    last_name: str | None
+    first_name: str | None = Field(min_length=2, max_length=50)
+    last_name: str | None = Field(min_length=2, max_length=50)
 
 
 class ProfileChange(ProfileBase):

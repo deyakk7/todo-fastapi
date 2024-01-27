@@ -21,8 +21,13 @@ async def create_todo(user: user_dependency, todo: TodoIn, db: db_dependency):
 
 
 @router.get("/my/", response_model=list[TodoOut])
-async def get_all_todos_of_current_user(user: user_dependency):
-    return user.todos
+async def get_all_todos_of_current_user(
+    user: user_dependency,
+    db: db_dependency,
+    offset: int = 0,
+    limit: int = 100,
+):
+    return db.query(Todo).filter(Todo.owner_id == user.id).limit(limit).offset(offset).all()
 
 
 @router.get("/{todo_id}/", response_model=TodoOut)

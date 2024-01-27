@@ -9,3 +9,4 @@ sqlite3.db
 .coverage
 
 upload
+db.sqlite3

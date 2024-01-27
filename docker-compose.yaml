@@ -8,6 +8,7 @@ services:
     volumes:
       - ./src/:/todo/src
       - ./alembic:/todo/alembic
+      - ./upload:/todo/upload
     depends_on:
       - db
     networks:
