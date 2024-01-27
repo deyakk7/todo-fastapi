@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from src.auth.dependencies import db_dependency, token_dependency
 from src.auth.exc import login_exc
 from src.auth.utils import verify_token, create_access_token, get_hash_password, verify_password
+from src.profiles.views import create_profile
 from src.settigns import ACCESS_TOKEN_EXPIRES_DAY
 from src.users.dependencies import user_dependency
 from src.users.exc import email_in_use_exc, password_invalid_exc, password_to_week_exc
@@ -21,14 +22,11 @@ router = APIRouter(
 
 @router.get('/', response_model=List[UserOut])
 async def get_all_users(
+        user: user_dependency,
         db: db_dependency,
-        token: token_dependency,
         skip: Union[int, None] = 0,
         limit: Union[int, None] = 100
 ):
-    if not verify_token(token=token, db=db):
-        raise login_exc
-
     users = db.query(User).limit(limit=limit).offset(offset=skip).all()
     return users
 
@@ -43,6 +41,8 @@ async def create_user(user: UserCreate, db: db_dependency):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    create_profile(db=db, user_id=db_user.id)
 
     data = {
         'sub': db_user.email,

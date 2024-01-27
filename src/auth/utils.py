@@ -9,6 +9,7 @@ from src.auth.dependencies import db_dependency
 from src.auth.exc import credentials_exc
 from src.users.utils import get_user_by_email
 
+
 pwd_context = context.CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
